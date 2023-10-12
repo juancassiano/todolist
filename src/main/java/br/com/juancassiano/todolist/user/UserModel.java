@@ -23,6 +23,6 @@ public class UserModel {
   private String name;
   private String password;
   @CreationTimestamp
-  private LocalDateTime created_at;
+  private LocalDateTime createdAt;
 
 }
