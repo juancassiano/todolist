@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import at.favre.lib.crypto.bcrypt.BCrypt;
+
 @RestController()
 @RequestMapping("/users")
 public class UserController {
@@ -24,6 +26,11 @@ public class UserController {
     if(user.isPresent()){
       return ResponseEntity.badRequest().build();
     }
+
+    String hashedPassword = BCrypt.withDefaults()
+    .hashToString(12, userModel.getPassword().toCharArray());
+
+    userModel.setPassword(hashedPassword);
     
     return ResponseEntity.status(HttpStatus.CREATED).body(this.userRepository.save(userModel));
   }
