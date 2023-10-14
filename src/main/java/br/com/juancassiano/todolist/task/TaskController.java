@@ -40,15 +40,30 @@ public class TaskController {
 
 
   @PutMapping("/{id}")
-  public TaskModel update(@PathVariable UUID id, @RequestBody TaskModel taskModel, HttpServletRequest request){
+  public ResponseEntity update(@PathVariable UUID id, @RequestBody TaskModel taskModel, HttpServletRequest request){
     Object idUser = request.getAttribute( "idUser");
 
-    TaskModel task = this.taskRepository.findById(id).orElseThrow(
-            () -> new RuntimeException("Task not found")
-    );
+//    TaskModel task = this.taskRepository.findById(id).orElseThrow(
+//            () -> new RuntimeException("Task not found")
+//    );
+    TaskModel task = this.taskRepository.findById(id).orElse(null); // Use .orElse(null) para tratar o caso de task ser null
+
+    if (task == null) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+              "Tarefa não encontrada"
+      );
+    }
+
+    if(!task.getIdUser().equals(idUser)){
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+              "Usuário sem permissão para alterar essa tarefa"
+      );
+    }
+
+//    this.taskRepository.findByIdAndByIdUser(task.getId(), (UUID) idUser);
     Utils.copyNonNullProperties(taskModel, task);
 
-    return this.taskRepository.save(task);
+    return ResponseEntity.ok().body(this.taskRepository.save(task));
 
   }
 
